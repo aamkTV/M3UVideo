@@ -1,0 +1,99 @@
+package com.dkc.m3uvideo;
+
+import android.app.ListActivity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.app.Activity;
+import android.os.Environment;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
+
+import java.io.File;
+import java.util.ArrayList;
+
+public class HomeActivity extends ListActivity {
+    public static final  String PLAYLIST_URI="PLAYLIST_URI";
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        getListView().setFastScrollEnabled(true);
+        getListView().setItemsCanFocus(true);
+
+        handlePlaylistIntent();
+    }
+
+    private void handlePlaylistIntent() {
+        Uri dataUri = getIntent().getData();
+        if (dataUri != null) {
+            SettingsUtil.setOption(getApplicationContext(), PLAYLIST_URI, dataUri.getPath());
+            loadPlaylist(dataUri.getPath());
+        }
+        else{
+            loadPlaylist(SettingsUtil.getStringOption(getApplicationContext(),PLAYLIST_URI,""));
+        }
+    }
+
+    private void loadPlaylist(String path) {
+        if(path!=null&&path.length()>0){
+            ArrayList<VideoStream> videos =  new M3UParser().parse(path);
+            displayPlaylist(videos);
+
+        }
+    }
+
+    protected void displayPlaylist(ArrayList<VideoStream> videos){
+        StreamsAdapter mAdapter = new StreamsAdapter(this,R.layout.list_item,videos);
+        setListAdapter(mAdapter);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.home, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_openfile:
+                selectPlaylist();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void selectPlaylist() {
+        FileDialog fileDialog = new FileDialog(this, Environment.getExternalStorageDirectory());
+        fileDialog.setFileEndsWith(".m3u");
+        fileDialog.addFileListener(new FileDialog.FileSelectedListener() {
+            public void fileSelected(File file) {
+                SettingsUtil.setOption(getApplicationContext(), PLAYLIST_URI, file.getAbsolutePath());
+                loadPlaylist(file.getAbsolutePath());
+                Log.d(getClass().getName(), "selected file " + file.toString());
+            }
+        });
+        fileDialog.showDialog();
+    }
+
+    @Override
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        VideoStream vid = (VideoStream) getListAdapter().getItem(position);
+
+        playVideo(vid);
+
+    }
+
+    private void playVideo(VideoStream vid) {
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setDataAndType(Uri.parse(vid.getPath()), vid.getMime_type());
+        startActivity(intent);
+    }
+}
