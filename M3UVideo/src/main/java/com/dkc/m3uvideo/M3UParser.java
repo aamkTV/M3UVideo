@@ -42,7 +42,12 @@ public class M3UParser {
                         if(options.containsKey("logo")){
                             entry.setLogoUrl(options.get("logo"));
                         }
-
+                        else if(options.containsKey("tvg-logo")){
+                            entry.setLogoUrl(options.get("tvg-logo"));
+                        }
+                        if(options.containsKey("mime-type")){
+                            entry.setMime_type(options.get("mime-type"));
+                        }
                         channels.add(entry);
                         detailsLine = "";
                     }
@@ -107,15 +112,18 @@ public class M3UParser {
     }
 
     private boolean startsWithBom(String line) {
-        char myChar = line.charAt(0);
-        int intValue = (int) myChar;
-        // Hexa value of BOM = EF BB BF  => int 65279
-        if (intValue == 65279) {
-            System.out.println("this file starts with a BOM");
-            return true;
-        } else {
-            System.out.println("file starts with " + intValue);
-            return false;
+        if(line.length()>0){
+            char myChar = line.charAt(0);
+            int intValue = (int) myChar;
+            // Hexa value of BOM = EF BB BF  => int 65279
+            if (intValue == 65279) {
+                System.out.println("this file starts with a BOM");
+                return true;
+            } else {
+                System.out.println("file starts with " + intValue);
+                return false;
+            }
         }
+        return false;
     }
 }

@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
+import com.squareup.picasso.RequestCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +47,24 @@ public class StreamsAdapter extends ArrayAdapter<VideoStream> {
         if(item!=null&&holder!=null){
             holder.titleView.setText(item.getTitle());
 
-            Picasso.with(getContext())
-                    .load(item.getPath())
-                    .placeholder(R.drawable.movie_placeholder_symbol)
-                    .fit()
-                    .into(holder.imageView);
+            String logo=item.getLogoUrl();
+            {
+                RequestCreator rc=null;
+                if(logo!=null&&logo.trim().length()>5){
+                    rc=Picasso.with(getContext())
+                            .load(logo);
+                }
+                else{
+                    rc=Picasso.with(getContext())
+                        .load(R.drawable.movie_placeholder_symbol);
+                }
+
+                rc.placeholder(R.drawable.movie_placeholder_symbol)
+                .resizeDimen(R.dimen.list_detail_image_size, R.dimen.list_detail_image_size)
+                .centerInside()
+                .into(holder.imageView);
+            }
+
         }
         return v;
     }

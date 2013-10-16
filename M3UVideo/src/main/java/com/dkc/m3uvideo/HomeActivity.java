@@ -93,7 +93,19 @@ public class HomeActivity extends ListActivity {
 
     private void playVideo(VideoStream vid) {
         Intent intent = new Intent(Intent.ACTION_VIEW);
-        intent.setDataAndType(Uri.parse(vid.getPath()), vid.getMime_type());
+
+        Uri videoUri =Uri.parse(vid.getPath());
+        intent.setDataAndType(videoUri, vid.getMime_type());
+
+        //problems with titles in DLNA
+        if(!vid.getMime_type().contains("vnd.dlna")){
+            String title=vid.getTitle();
+            if(title!=null&&title.length()>0){
+                intent.putExtra("title",title);
+                intent.putExtra("displayName",title);
+                intent.putExtra("forcename",title);
+            }
+        }
         startActivity(intent);
     }
 }
