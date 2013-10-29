@@ -3,6 +3,6 @@
 
     <string name="app_name">M3U Video</string>
     <string name="action_settings">Settings</string>
-    <string name="hello_world">Hello world!</string>
+    <string name="no_players_associated">Can't find compatible player</string>
     <string name="action_openfile">Choose playlist</string>
 </resources>

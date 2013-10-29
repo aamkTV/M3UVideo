@@ -12,6 +12,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -106,6 +107,31 @@ public class HomeActivity extends ListActivity {
                 intent.putExtra("forcename",title);
             }
         }
-        startActivity(intent);
+        if(!startActivityWCheck(intent)){
+
+            //start activity without mime-type
+            intent.setData(videoUri);
+            if(!startActivityWCheck(intent)){
+                showNoPlayerFoundMsg();
+            }
+        }
+    }
+
+    private void showNoPlayerFoundMsg() {
+        Toast toast = Toast.makeText(this, R.string.no_players_associated, Toast.LENGTH_LONG);
+        toast.show();
+    }
+
+    private boolean startActivityWCheck(Intent intent){
+        try{
+            if (intent.resolveActivity(getPackageManager()) != null) {
+                startActivity(intent);
+                return true;
+            }
+        }
+        catch (Exception ex){
+            return false;
+        }
+        return false;
     }
 }
